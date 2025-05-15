@@ -2,10 +2,15 @@ import os
 import random
 import datetime
 import string
+import pymysql
+
+from flask import Request
 from google.cloud import secretmanager
 from google.cloud.sql.connector import Connector
-import pymysql
-from flask import Request  # If deployed as a Cloud Function or Cloud Run
+import mysql.connector
+from mysql.connector import errorcode
+
+
 
 # Project and instance info
 PROJECT_ID = "cloud-sql-big-table-data-flow"
