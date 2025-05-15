@@ -83,9 +83,15 @@ def cloud_sql_data_generation(table, number_of_records = random.randint(50,100))
         return False, {cursor.rowcount}
     
     finally:
-        if conn.is_connected():
+        try:
             cursor.close()
+        except:
+            pass
+        try:
             conn.close()
+        except:
+            pass
+    
     
 def execute_request(request: Request):
     sucussfull_data_ingestion, rows_added = cloud_sql_data_generation(table='transactions')
