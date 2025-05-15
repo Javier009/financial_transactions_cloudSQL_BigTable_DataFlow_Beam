@@ -45,7 +45,8 @@ def get_connection():
     return conn
 
 # Flask-compatible test endpoint
-def cloud_sql_data_generation(table, number_of_records = random.randint(50,100)):
+def cloud_sql_data_generation(table):
+    number_of_records = random.randint(50,100)
     try:
         conn = get_connection()
         cursor = conn.cursor()
