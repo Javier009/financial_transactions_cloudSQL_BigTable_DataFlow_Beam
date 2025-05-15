@@ -77,6 +77,11 @@ def cloud_sql_data_generation(table, number_of_records = random.randint(50,10)):
         print(f"❌ Connection error: {e}")
         return False
     
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
+    
 def execute_request(request):
     sucussfull_data_ingestion = cloud_sql_data_generation(table='transactions')
     if sucussfull_data_ingestion:
