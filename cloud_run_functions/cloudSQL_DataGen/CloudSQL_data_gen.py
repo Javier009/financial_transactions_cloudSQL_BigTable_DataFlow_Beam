@@ -71,11 +71,11 @@ def cloud_sql_data_generation(table, number_of_records = random.randint(50,10)):
         cursor.executemany(insert_stmt, transactions)
         conn.commit()
         print(f"✅ Inserted {cursor.rowcount} fake transactions into `{table}`.")
-        return True
+        return True, {cursor.rowcount}
     
     except Exception as e:
         print(f"❌ Connection error: {e}")
-        return False
+        return False, {cursor.rowcount}
     
     finally:
         if conn.is_connected():
@@ -83,11 +83,11 @@ def cloud_sql_data_generation(table, number_of_records = random.randint(50,10)):
             conn.close()
     
 def execute_request(request):
-    sucussfull_data_ingestion = cloud_sql_data_generation(table='transactions')
+    sucussfull_data_ingestion, rows_added = cloud_sql_data_generation(table='transactions')
     if sucussfull_data_ingestion:
-        return '✅ Data ingestion was succesful', 200
+        return f'✅ Data ingestion was succesful with {rows_added} new rows', 200
     else:
-        return  "❌ Errors encountered plase review", 500
+        return  f"❌ Errors encountered plase review, {rows_added} rows", 500
 
     
 
