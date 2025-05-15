@@ -82,7 +82,7 @@ def cloud_sql_data_generation(table, number_of_records = random.randint(50,10)):
             cursor.close()
             conn.close()
     
-def execute_request(request):
+def execute_request(request: Request):
     sucussfull_data_ingestion, rows_added = cloud_sql_data_generation(table='transactions')
     if sucussfull_data_ingestion:
         return f'✅ Data ingestion was succesful with {rows_added} new rows', 200
