@@ -132,7 +132,8 @@ def mark_transaction_as_sent(processed_transactions:list):
         except:
             pass
 
-def register_records_in_BigTable(list_dict=fetch_records('transactions')):
+def register_records_in_BigTable():
+    list_dict=fetch_records('transactions')
     proceesed_transactions = []
     all_rows = []
     try:
