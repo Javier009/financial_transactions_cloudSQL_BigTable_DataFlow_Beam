@@ -136,59 +136,66 @@ def register_records_in_BigTable():
     list_dict=fetch_records('transactions')
     proceesed_transactions = []
     all_rows = []
-    try:
-        for row in list_dict:
-            row_id = generate_unique_id()
-            transaction_id = row['transaction_id']
-            account_id = row['account_id']
-            amount = row['amount']
-            currency = row['currency']
-            transaction_type = row['transaction_type']
-            transaction_date = row['transaction_date']
-            description = row['description']
-            status = row['status']
-            created_at = row['created_at']
-            updated_at = row['updated_at']
+    if len(list_dict) > 0 :
+        try:
+            for row in list_dict:
+                row_id = generate_unique_id()
+                transaction_id = row['transaction_id']
+                account_id = row['account_id']
+                amount = row['amount']
+                currency = row['currency']
+                transaction_type = row['transaction_type']
+                transaction_date = row['transaction_date']
+                description = row['description']
+                status = row['status']
+                created_at = row['created_at']
+                updated_at = row['updated_at']
 
-            record_tupple = (row_id, {
-                                    "cf_latest:transaction_id":str(transaction_id),
-                                    "cf_latest:account_id":str(account_id),
-                                    "cf_latest:amount":str(amount),
-                                    "cf_latest:currency":str(currency),
-                                    "cf_latest:transaction_type":str(transaction_type),
-                                    "cf_latest:passed_to_pubsub":'False',
-                                    "cf_history:transaction_date":str(transaction_date),
-                                    "cf_history:description":str(description),
-                                    "cf_history:status":str(status),
-                                    "cf_history:created_at":str(created_at),
-                                    "cf_history:updated_at":str(updated_at)
-                                    }
-                            )
+                record_tupple = (row_id, {
+                                        "cf_latest:transaction_id":str(transaction_id),
+                                        "cf_latest:account_id":str(account_id),
+                                        "cf_latest:amount":str(amount),
+                                        "cf_latest:currency":str(currency),
+                                        "cf_latest:transaction_type":str(transaction_type),
+                                        "cf_latest:passed_to_pubsub":'False',
+                                        "cf_history:transaction_date":str(transaction_date),
+                                        "cf_history:description":str(description),
+                                        "cf_history:status":str(status),
+                                        "cf_history:created_at":str(created_at),
+                                        "cf_history:updated_at":str(updated_at)
+                                        }
+                                )
+                
+                all_rows.append(record_tupple)
+                proceesed_transactions.append(transaction_id)
             
-            all_rows.append(record_tupple)
-            proceesed_transactions.append(transaction_id)
-        
-        for key, data in all_rows:
-            r = bigtable_table.direct_row(key)
-            for colfam_col, val in data.items():
-                cf, col = colfam_col.split(":", 1)
-                r.set_cell(cf, col, val)
-            r.commit()
-        print("Inserted demo rows into BigTable")
-         # marked transactions as registered in CloudSQL
-        mark_transaction_as_sent(proceesed_transactions)
-        print(f"✅ Succesfully sent new data to BigTable -> {len(all_rows)} new records")
-        return True     
-    except Exception as e:
-        print(f"❌ Error inserting data in BigTable: {e}")
-        return False
+            for key, data in all_rows:
+                r = bigtable_table.direct_row(key)
+                for colfam_col, val in data.items():
+                    cf, col = colfam_col.split(":", 1)
+                    r.set_cell(cf, col, val)
+                r.commit()
+            print("Inserted demo rows into BigTable")
+            # marked transactions as registered in CloudSQL
+            mark_transaction_as_sent(proceesed_transactions)
+            print(f"✅ Succesfully sent new data to BigTable -> {len(all_rows)} new records")
+            return True, len(list_dict)
+        except Exception as e:
+            print(f"❌ Error inserting data in BigTable: {e}")
+            return False, 0
+    else:
+        print('No new data to be sent')
+        return True, 0
     
     
 
 def execute_CloudSQL_to_BigTable(request: Request):
-    succesful_transfer_cloudSQL_to_BigTable = register_records_in_BigTable()
+    succesful_transfer_cloudSQL_to_BigTable, records = register_records_in_BigTable()
     if succesful_transfer_cloudSQL_to_BigTable:
-        return f"✅ Succesfully sent new data to BigTable -> Review DataFlow streming job, changes shoud have been recorded as CDC", 200
+        if records >0:
+            return f"✅ Succesfully sent new {records} to BigTable -> Review DataFlow streming job, changes shoud have been recorded as CDC ", 200
+        else:
+            return f"✅  No new records to be sent, all code ran well no worries ", 200
     else:
-        return  f"❌ Errors encountered plase review", 500
+        return  f"❌ Errors encountered plase review, sent {records} records ", 500
         
