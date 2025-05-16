@@ -4,3 +4,4 @@ mysql-connector-python
 cloud-sql-python-connector
 pymysql
 Flask
+google-cloud-pubsub
