@@ -11,7 +11,6 @@ from google.cloud.sql.connector import Connector
 from google.cloud import bigtable
 from google.cloud.bigtable import row_filters
 
-
 # BigTable credentials
 
 PROJECT_ID  = "cloud-sql-big-table-data-flow"

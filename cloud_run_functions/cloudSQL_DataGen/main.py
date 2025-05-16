@@ -9,15 +9,21 @@ import time
 from flask import Request
 from google.cloud import secretmanager
 from google.cloud.sql.connector import Connector
+from google.cloud import pubsub_v1
 import mysql.connector
 from mysql.connector import errorcode
-
 
 
 # Project and instance info
 PROJECT_ID = "cloud-sql-big-table-data-flow"
 INSTANCE_CONNECTION_NAME = "cloud-sql-big-table-data-flow:us-central1:fin-serv-instance"
 DB_NAME = "finserv"
+
+# Recived Messages PUB/SUB topic --> This will trigger the second Cloud Run function that moves data from CloudSQL to BigTable
+TOPIC_ID = 'cloudsql-new-data-generated-pass-to-bigtable'
+publisher = pubsub_v1.PublisherClient()
+topic_path = publisher.topic_path(PROJECT_ID, TOPIC_ID)
+
 
 # Secret names in Secret Manager
 SECRET_DB_USER = "fin_serv_db_user"
@@ -95,24 +101,31 @@ def cloud_sql_data_generation(table):
         except:
             pass
 
-def trigger_bigtable_writer(number_of_rows):
-    url = "https://cloudsql-transfer-to-bigtable-1096215919784.us-central1.run.app"  # your real URL
-    payload = {"status": "sql_write_complete", "rows_added": number_of_rows}
+# def trigger_bigtable_writer(number_of_rows):
+#     url = "https://cloudsql-transfer-to-bigtable-1096215919784.us-central1.run.app"  # your real URL
+#     payload = {"status": "sql_write_complete", "rows_added": number_of_rows}
+#     try:
+#         resp = requests.post(url, json=payload)
+#         if resp.status_code == 200:
+#             print("✅ Triggered Cloud Run 2 successfully")
+#         else:
+#             print(f"⚠️ Trigger failed: {resp.status_code}")
+#     except Exception as e:
+#         print(f"❌ Error calling Cloud Run 2: {e}")
+
+def send_message_to_pubsub(message):
     try:
-        resp = requests.post(url, json=payload)
-        if resp.status_code == 200:
-            print("✅ Triggered Cloud Run 2 successfully")
-        else:
-            print(f"⚠️ Trigger failed: {resp.status_code}")
+        future = publisher.publish(topic_path, message)
+        print(f"Published message ID: {future.result()}")
     except Exception as e:
-        print(f"❌ Error calling Cloud Run 2: {e}")
+        print(f"Error publishing message: {e}")
     
 def execute_request(request: Request):
     sucussfull_data_ingestion, rows_added = cloud_sql_data_generation(table='transactions')
     if sucussfull_data_ingestion:
         time.sleep(10)
-        trigger_bigtable_writer(number_of_rows=rows_added)
-        return f'✅ Data ingestion was succesful with {rows_added} new rows and BigTable function triggered', 200
+        send_message_to_pubsub('New data in CloudSQL has been inserted')
+        return f'✅ Data ingestion was succesful with {rows_added} new rows and message sent to PubSub Topic', 200
     else:
         return  f"❌ Errors encountered plase review, {rows_added} rows", 500
 
