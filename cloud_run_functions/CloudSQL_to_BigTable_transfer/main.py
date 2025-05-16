@@ -3,10 +3,13 @@ import random
 import datetime
 import string
 import pymysql
-import mysql.connector
+import base64
 
+import mysql.connector
 from mysql.connector import errorcode
+
 from flask import Request
+
 from google.cloud import secretmanager
 from google.cloud.sql.connector import Connector
 from google.cloud import bigtable
@@ -191,6 +194,7 @@ def register_records_in_BigTable():
     
 @functions_framework.cloud_event
 def execute_CloudSQL_to_BigTable(cloud_event):
+    print(base64.b64decode(cloud_event.data["message"]["data"]), 'Will transfer to Big Table')
     succesful_transfer_cloudSQL_to_BigTable, records = register_records_in_BigTable()
     if succesful_transfer_cloudSQL_to_BigTable:
         if records > 0:
