@@ -1,0 +1,5 @@
+Flask
+mysql-connector-python
+google-cloud-secret-manager
+cloud-sql-python-connector
+google-cloud-bigtable
