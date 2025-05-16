@@ -2,7 +2,7 @@ import os
 import random
 import datetime
 import string
-# import pymysql
+import pymysql
 import mysql.connector
 from mysql.connector import errorcode
 from flask import Request
