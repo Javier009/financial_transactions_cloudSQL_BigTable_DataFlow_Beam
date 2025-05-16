@@ -4,6 +4,7 @@ import datetime
 import string
 import pymysql
 import mysql.connector
+
 from mysql.connector import errorcode
 from flask import Request
 from google.cloud import secretmanager
@@ -11,6 +12,7 @@ from google.cloud.sql.connector import Connector
 from google.cloud import bigtable
 from google.cloud.bigtable import row_filters
 
+import functions_framework
 # BigTable credentials
 
 PROJECT_ID  = "cloud-sql-big-table-data-flow"
@@ -187,12 +189,12 @@ def register_records_in_BigTable():
         return True, 0
     
     
-
-def execute_CloudSQL_to_BigTable(request: Request):
+@functions_framework.cloud_event
+def execute_CloudSQL_to_BigTable(cloud_event):
     succesful_transfer_cloudSQL_to_BigTable, records = register_records_in_BigTable()
     if succesful_transfer_cloudSQL_to_BigTable:
-        if records >0:
-            return f"✅ Succesfully sent new {records} to BigTable -> Review DataFlow streming job, changes shoud have been recorded as CDC ", 200
+        if records > 0:
+            return f"✅ Succesfully sent new {records} to BigTable -> Review DataFlow streming job, changes shoud have been recorded in CDC ", 200
         else:
             return f"✅  No new records to be sent, all code ran well no worries ", 200
     else:
