@@ -97,7 +97,7 @@ def cloud_sql_data_generation(table):
 
 def trigger_bigtable_writer(number_of_rows):
     url = "https://cloudsql-transfer-to-bigtable-1096215919784.us-central1.run.app"  # your real URL
-    payload = {"status": "sql_write_complete", "rows_added": 50}
+    payload = {"status": "sql_write_complete", "rows_added": number_of_rows}
     try:
         resp = requests.post(url, json=payload)
         if resp.status_code == 200:
