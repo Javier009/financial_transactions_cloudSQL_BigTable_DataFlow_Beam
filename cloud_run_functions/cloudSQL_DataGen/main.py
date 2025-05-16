@@ -101,20 +101,9 @@ def cloud_sql_data_generation(table):
         except:
             pass
 
-# def trigger_bigtable_writer(number_of_rows):
-#     url = "https://cloudsql-transfer-to-bigtable-1096215919784.us-central1.run.app"  # your real URL
-#     payload = {"status": "sql_write_complete", "rows_added": number_of_rows}
-#     try:
-#         resp = requests.post(url, json=payload)
-#         if resp.status_code == 200:
-#             print("✅ Triggered Cloud Run 2 successfully")
-#         else:
-#             print(f"⚠️ Trigger failed: {resp.status_code}")
-#     except Exception as e:
-#         print(f"❌ Error calling Cloud Run 2: {e}")
-
-def send_message_to_pubsub(message):
+def send_message_to_pubsub():
     try:
+        message = 'New data in CloudSQL has been inserted'
         future = publisher.publish(topic_path, message)
         print(f"Published message ID: {future.result()}")
     except Exception as e:
@@ -124,7 +113,7 @@ def execute_request(request: Request):
     sucussfull_data_ingestion, rows_added = cloud_sql_data_generation(table='transactions')
     if sucussfull_data_ingestion:
         time.sleep(10)
-        send_message_to_pubsub('New data in CloudSQL has been inserted')
+        send_message_to_pubsub()
         return f'✅ Data ingestion was succesful with {rows_added} new rows and message sent to PubSub Topic', 200
     else:
         return  f"❌ Errors encountered plase review, {rows_added} rows", 500
