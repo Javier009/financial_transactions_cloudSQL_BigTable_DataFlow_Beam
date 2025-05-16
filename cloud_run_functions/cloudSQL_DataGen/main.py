@@ -5,6 +5,7 @@ import string
 import pymysql
 import requests
 import time
+import json
 
 from flask import Request
 from google.cloud import secretmanager
@@ -103,8 +104,9 @@ def cloud_sql_data_generation(table):
 
 def send_message_to_pubsub():
     try:
-        message = 'New data in CloudSQL has been inserted'
-        future = publisher.publish(topic_path, message)
+        message = {"event": "cloudsql_insert_complete"}
+        message_bytes = json.dumps(message).encode("utf-8")
+        future = publisher.publish(topic_path, message_bytes)
         print(f"Published message ID: {future.result()}")
     except Exception as e:
         print(f"Error publishing message: {e}")
