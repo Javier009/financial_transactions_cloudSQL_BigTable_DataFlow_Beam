@@ -156,7 +156,10 @@ if __name__ == '__main__':
             options.date_suffixes = dates_to_process
             run(options)
         else:
-            print('No new dates to process')
+            print('No new dates to process, overwirting some existing dates with same data')
+            dates_to_process = '2025-05-15,2025-05-16'
+            options.date_suffixes = dates_to_process
+            run(options)
     else:
         run(options)
 
