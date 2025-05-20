@@ -1,0 +1,50 @@
+{
+  "launchParameter": {
+    "jobName": "fedex-test-gds",
+    "containerSpecGcsPath": "gs://dataflow-templates-gds/templates/fedex-daily.json",
+    "parameters": {
+      "date_suffix": "2025_05_04",
+      "input_bucket": "dataflow-demo-gds",
+      "gcp_project": "mythic-aloe-457912-d5",
+      "bigtable_instance": "gds-bigtable",
+      "bigtable_table": "fedex",
+      "app_profile": "default"
+    }
+  }
+}
+
+{
+  "launchParameter": {
+    "jobName": "financial-transactions-summaries",
+    "containerSpecGcsPath": "gs://dataflow-templates-financial-transactions/templates/daily_transactions_summaries.json",
+    "parameters": {
+      "input_bucket": "financial_transactions_daily_summary",
+      "gcp_project": "cloud-sql-big-table-data-flow",
+      "bigtable_instance": "fin-bt",
+      "bigtable_table": "daily_transactions_summaries_from_csv",
+      "app_profile": "default"
+    }
+  }
+}
+
+
+
+{
+  "launchParameter": {
+    "jobName": "financial-transactions-summaries",
+    "containerSpecGcsPath": "gs://dataflow-templates-financial-transactions/templates/daily_transactions_summaries.json",
+    "environment": {
+      "tempLocation": "gs://dataflow-templates-financial-transactions/temp",
+      "zone": "us-central1-f"
+    },
+    "parameters": {
+      "input_bucket": "financial_transactions_daily_summary",
+      "gcp_project": "cloud-sql-big-table-data-flow",
+      "bigtable_instance": "fin-bt",
+      "bigtable_table": "daily_transactions_summaries_from_csv",
+      "app_profile": "default"
+    }
+  }
+}
+
+

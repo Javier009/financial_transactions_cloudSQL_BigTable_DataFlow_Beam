@@ -1,0 +1,5 @@
+transaction_date_yyyymmdd,cf_latest:transaction_type,number_of_transactions,total_ammount
+2025-05-14,deposit,356,-39013.75
+2025-05-14,payment,349,13194.330000000002
+2025-05-14,transfer,347,-70032.12999999999
+2025-05-14,withdrawal,348,43342.41
